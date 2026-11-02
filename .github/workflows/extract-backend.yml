@@ -1,0 +1,40 @@
+name: Extract backend archive
+
+on:
+  push:
+    branches:
+      - inspect/backend-extract
+    paths:
+      - .github/workflows/extract-backend.yml
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: inspect/backend-extract
+          fetch-depth: 0
+
+      - name: Extract ZIP
+        run: |
+          set -euo pipefail
+          test -f "noxx.lat (1).zip"
+          mkdir -p backend-source
+          unzip -q "noxx.lat (1).zip" -d backend-source
+          echo "Extracted archive listing:"
+          find backend-source -maxdepth 4 -type f -printf '%p (%s bytes)\\n' | sort | head -300
+          test "$(find backend-source -type f | wc -l)" -gt 0
+
+      - name: Commit extracted source
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend-source
+          git commit -m "Extract backend archive for inspection" || echo "No extracted changes"
+          git push origin inspect/backend-extract
