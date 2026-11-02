@@ -1,0 +1,25 @@
+name: Replace Noxx frontend with DKR
+on:
+  push:
+    branches:
+      - feat/dkr-frontend-noxx
+    paths:
+      - .github/workflows/replace-noxx-frontend.yml
+permissions:
+  contents: write
+jobs:
+  replace-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace public entry pages
+        run: |
+          cp dkr-atualizado.html noxx.lat/index.html
+          cp dkr-atualizado.html noxx.lat/pt-br/index.html
+      - name: Commit replacement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add noxx.lat/index.html noxx.lat/pt-br/index.html
+          git commit -m "Replace Noxx frontend with DKR site"
+          git push
